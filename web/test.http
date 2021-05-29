@@ -1,0 +1,12 @@
+###
+POST http://localhost:3000/foo HTTP/1.1
+Content-Type: application/json
+User-Agent: rest-client
+
+{
+    "first_name": "tucker",
+    "last_name": "kim",
+    "email": "tucker@naver.com"
+}
+
+###
