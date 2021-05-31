@@ -19,6 +19,18 @@ type User struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
+// update용 struct
+// type UpdateUser struct {
+// 	ID               int `json:"id"`
+// 	UpdatedFirstName bool
+// 	FirstName        string `json:"first_name"`
+// 	UpdatedLastName  bool
+// 	LastName         string `json:"last_name"`
+// 	UpdatedEmail     bool
+// 	Email            string    `json:"email"`
+// 	CreatedAt        time.Time `json:"created_at"`
+// }
+
 // user 정보를 담고 있는 map
 var userMap map[int]*User
 var lastID int
@@ -27,7 +39,21 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "hello, world")
 }
 func userHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "Get UserInfo by /users/{id}")
+	if len(userMap) == 0 {
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprint(w, "No Users")
+		return
+	}
+
+	users := []*User{}
+	for _, u := range userMap {
+		users = append(users, u)
+	}
+
+	data, _ := json.Marshal(users)
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprint(w, string(data))
 }
 
 func getUserInfoHandler(w http.ResponseWriter, r *http.Request) {
@@ -116,19 +142,26 @@ func updateUserHandler(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		w.WriteHeader(http.StatusOK)
 		fmt.Fprint(w, "No User Id:", updateUser.ID)
+		return
 	}
 
 	if updateUser.FirstName != "" {
 		user.FirstName = updateUser.FirstName
 	}
+
+	// 일부러 빈값으로 바꾸고 싶을 때는 다음 로직을 거치지 않는 문제가 생김
+	// => 실무에서는 update 용 struct를 따로 만든다고 함
 	if updateUser.LastName != "" {
 		user.LastName = updateUser.LastName
 	}
 
-	userMap[updateUser.ID] = updateUser
+	if updateUser.Email != "" {
+		user.Email = updateUser.Email
+	}
+
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	data, _ := json.Marshal(updateUser)
+	data, _ := json.Marshal(user)
 	fmt.Fprint(w, string(data))
 }
 

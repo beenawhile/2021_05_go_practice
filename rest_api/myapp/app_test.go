@@ -43,7 +43,33 @@ func TestUsers(t *testing.T) {
 	assert.Equal(http.StatusOK, res.StatusCode)
 
 	data, _ := ioutil.ReadAll(res.Body)
-	assert.Contains(string(data), "Get UserInfo")
+	assert.Equal(string(data), "No Users")
+
+}
+
+func TestUsersWithUsersData(t *testing.T) {
+	assert := assert.New(t)
+
+	ts := httptest.NewServer(NewHandler())
+	defer ts.Close()
+
+	res, err := http.Post(ts.URL+"/users", "application/json", strings.NewReader(`{"first_name":"tucker", "last_name":"kim","email":"tucker@naver.com"}`))
+	assert.NoError(err)
+	assert.Equal(http.StatusCreated, res.StatusCode)
+
+	res, err = http.Post(ts.URL+"/users", "application/json", strings.NewReader(`{"first_name":"jason", "last_name":"park","email":"json@naver.com"}`))
+	assert.NoError(err)
+	assert.Equal(http.StatusCreated, res.StatusCode)
+
+	res, err = http.Get(ts.URL + "/users")
+	assert.NoError(err)
+	assert.Equal(http.StatusOK, res.StatusCode)
+
+	// decode 잘 되는지 확인
+	users := []*User{}
+	err = json.NewDecoder(res.Body).Decode(&users)
+	assert.NoError(err)
+	assert.Equal(2, len(users))
 
 }
 func TestUserInfo(t *testing.T) {
@@ -132,7 +158,8 @@ func TestUpdateUser(t *testing.T) {
 	ts := httptest.NewServer(NewHandler())
 	defer ts.Close()
 
-	req, _ := http.NewRequest("PUT", ts.URL+"/users", strings.NewReader(`{"id":1,"first_name":"updated","last_name":"updated","email":"updated@naver.com"}`))
+	req, _ := http.NewRequest("PUT", ts.URL+"/users",
+		strings.NewReader(`{"id":1,"first_name":"updated","last_name":"updated","email":"updated@naver.com"}`))
 	res, err := http.DefaultClient.Do(req)
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, res.StatusCode)
@@ -142,7 +169,8 @@ func TestUpdateUser(t *testing.T) {
 	assert.Contains(string(data), "No User Id:1")
 
 	// create 해서 확인해보기
-	res, err = http.Post(ts.URL+"/users", "application/json", strings.NewReader(`{"first_name":"tucker", "last_name":"kim","email":"tucker@naver.com"}`))
+	res, err = http.Post(ts.URL+"/users", "application/json",
+		strings.NewReader(`{"first_name":"tucker", "last_name":"kim","email":"tucker@naver.com"}`))
 	assert.NoError(err)
 	assert.Equal(http.StatusCreated, res.StatusCode)
 
@@ -152,9 +180,10 @@ func TestUpdateUser(t *testing.T) {
 	assert.NotEqual(0, user.ID)
 
 	// 문자열 동적으로 만들기 위해 따로 뺌
-	updateStr := fmt.Sprintf(`{"id":%d,"first_name":"updated"}`, user.ID)
+	updateStr := fmt.Sprintf(`{"id":%d,"first_name":"updated", "last_name":""}`, user.ID)
 
-	req, _ = http.NewRequest("PUT", ts.URL+"/users", strings.NewReader(updateStr))
+	req, _ = http.NewRequest("PUT", ts.URL+"/users",
+		strings.NewReader(updateStr))
 	res, err = http.DefaultClient.Do(req)
 	assert.NoError(err)
 	assert.Equal(http.StatusOK, res.StatusCode)
@@ -164,7 +193,9 @@ func TestUpdateUser(t *testing.T) {
 	assert.NoError(err)
 	assert.Equal(updateUser.ID, user.ID)
 	assert.Equal("updated", updateUser.FirstName)
-	assert.Equal("updated", updateUser.LastName)
-	assert.Equal("updated@naver.com", updateUser.Email)
+	assert.Equal(user.LastName, updateUser.LastName)
+	// 다음과 같은 경우 문제가 생기는 것 확인 => update 용 struct를 새로 만들어줘야함
+	// assert.Equal("", updateUser.LastName)
+	assert.Equal(user.Email, updateUser.Email)
 
 }

@@ -15,6 +15,8 @@ func main() {
 	// funcTest()
 	// pointerTest()
 	// structureTest()
+	// structTest()
+	pTest()
 	// methodTest()
 	// interfaceTest()
 	// interfaceTest2()
@@ -34,5 +36,5 @@ func main() {
 	// wrongChannelParamTest()
 	// channelCloseTest()
 	// channelRangeTest()
-	channelSelectTest()
+	// channelSelectTest()
 }
