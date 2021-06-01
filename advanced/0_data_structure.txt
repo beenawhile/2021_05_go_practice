@@ -1,0 +1,13 @@
+- 다른 자료구조를 만들 수 있는 기본 자료 구조
+ 1. array
+ 2. linked list
+
+- 종류
+ 1. fixed array
+ 2. slice
+ 3. map : array, linked list
+ 4. stack : array, linked list 
+ 5. queue : array, linked list
+ 6. tree : linked list (이진 트리는 array로도 가능)
+ 7. graph : linked list
+ 8. heap : array, linked list
