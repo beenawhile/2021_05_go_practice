@@ -30,9 +30,8 @@ type Node struct {
 }
 
 func linkedListTest() {
-	var root *Node
 
-	root = &Node{val: 0}
+	root := &Node{val: 0}
 
 	// element 추가는 어떻게 해야하나?
 	// 하나의 노드 만든 다음에 맨끝의 Node next 값을 새로 만든 노드로 갈아 끼우면 됨
@@ -71,6 +70,29 @@ func linkedListTest() {
 		tail = AddNode(tail, i)
 	}
 
+	PrintNodes(root)
+
+	// 2. remove
+	// - 지울 때 주의점
+	//  - 양 끝은?
+	// 맨 앞
+	//  - root 만 바꿔주면 됨
+	// 맨 끝
+	//  - tail 만 바꿔주면 됨
+	root, tail = RemoveNode(tail, root, tail)
+
+	PrintNodes(root)
+
+	root, tail = RemoveNode(tail, root, tail)
+
+	PrintNodes(root)
+
+	root, tail = RemoveNode(root, root, tail)
+
+	PrintNodes(root)
+}
+
+func PrintNodes(root *Node) {
 	node := root
 	for node.next != nil {
 		fmt.Printf("%d -> ", node.val)
@@ -79,6 +101,8 @@ func linkedListTest() {
 
 	fmt.Printf("%d\n", node.val)
 }
+
+// 1. Add
 
 // func AddNode(root *Node, val int) {
 // 	var tail *Node
@@ -91,6 +115,9 @@ func linkedListTest() {
 // 	tail.next = node
 // }
 
+// 해당 방법은 tail에 대한 정보가 없기 때문에 맨끝에 값을 추가하기 위해 for 문을 돌아야함.
+//  => O(N)번 for문을 거치게 된다
+
 func AddNode(tail *Node, val int) *Node {
 
 	node := &Node{val: val}
@@ -98,3 +125,58 @@ func AddNode(tail *Node, val int) *Node {
 	return node
 
 }
+
+// 해당방법은 node 하나만 추가해서 tail을 바꿔주기만 하면 됨. for 문을 안돌아도 됨
+// => O(1)번 for문을 거치게 된다
+// => 시간이 적게 걸림
+
+// 2. Remove
+// - 어떻게 할까? => 삭제 할 노드 전의 노드와 삭제할 노드 후의 노드를 이어주기만 하면 됨
+// - 참조하고 있지 않은 노드는 reference count = 0 이기 때문에 메모리에서 사라짐
+func RemoveNode(node, root, tail *Node) (*Node, *Node) {
+	// 지울 때 주의점
+	//  - 양 끝은?
+	// 1. 맨 앞
+	//  - root 만 바꿔주면 됨
+	// 2. 맨 끝
+	//  - tail 만 바꿔주면 됨
+	// prev.next = prev.next.next
+	// 3. node 가 하나일 때?
+	// - root, tail 모두 nil 가리켜야함
+
+	// 지우고자 하는 node가 첫번째 일 때
+	if node == root {
+		root = root.next
+
+		// node 가 하나 밖에 없을 때
+		if root == nil {
+			tail = nil
+		}
+
+		return root, tail
+	}
+
+	// 지우고자 하는 node 전 node 찾기
+	prev := root
+	for prev.next != node {
+		prev = prev.next
+	}
+
+	// node 찾았는데 tail node 일 경우
+	if node == tail {
+		prev.next = nil
+		tail = prev
+	} else {
+		// tail node가 아닐 경우 : 전 것과 다음거만 이어주면 됨
+		prev.next = prev.next.next
+	}
+
+	return root, tail
+
+}
+
+// - 내가 지우고 싶은 node를 찾기 위해 O(N) 만큼 반복해야 함
+// 빠르게 하기 위해서 Double Linked List를 사용하면 됨(=prev도 알고 next도 알면 됨) => O(1)이 됨
+
+// 비고법 : 알고리즘에서 시간을 나타내는 방법
+// - element의 갯수와 알고리즘의 속도가 바뀔 때, 서로간의 상관관계

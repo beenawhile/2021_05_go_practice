@@ -2,6 +2,12 @@ package main
 
 func main() {
 	// sliceTest()
-	// slicingTest()
-	linkedListTest()
+	// slicingTest()5
+	// linkedListTest()
+	// linkedListPractice()
+	// linkedListRefactoredTest()
+	// doubleLinkedListTest()
+	// stackQueueTest()
+	// treeTest()
+	binaryTreeTest()
 }
