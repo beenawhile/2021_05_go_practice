@@ -16,6 +16,10 @@ type BinaryTreeNode struct {
 // - tree에서 어떤 값을 찾을 때, 다른 search (BFS, DFS)는 모든 노드를 거쳐가야 하지만 BST는 모든 노드를 다 검사할 필요가 없음
 // - 노드 값을 비교해보고 찾고자 하는 값이 큰값인지 작은값인지에 따라 한 부분만 찾아보면 됨
 // - big O 법으로 속도를 계산할 때 속도 : log2N (다른 tree 구조는 O(N))
+// - BST는 대칭을 이뤄야 검색 효율이 더 좋아짐 (머릿속으로 잠시 생각해보면 이해할 수 있을 듯)
+//  => 높이(=depth)가 가장 낮은 tree 가 가장 효율적 => 최소 신장 트리
+// - 이런 tree를 어떻게 만드나? => 기존 트리를 회전시켜 최소 신장을 만드는 방법 사용 => AVL 트리 알고리즘
+//   다른 방법도 있음. Black Red tree, etc ...
 
 type BinaryTree struct {
 	Root *BinaryTreeNode

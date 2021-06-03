@@ -9,5 +9,8 @@ func main() {
 	// doubleLinkedListTest()
 	// stackQueueTest()
 	// treeTest()
-	binaryTreeTest()
+	// binaryTreeTest()
+	// heapTest()
+	pickNthValueTest()
+
 }
