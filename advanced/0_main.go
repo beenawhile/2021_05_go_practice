@@ -11,6 +11,13 @@ func main() {
 	// treeTest()
 	// binaryTreeTest()
 	// heapTest()
-	pickNthValueTest()
+	// pickNthValueTest()
 
+	// customMapTest()
+	// mapTest()
+	// threadTest()
+	// mutexMultiThreadProblem()
+	// deadLockMultiThreadProblem()
+	// channelTest()
+	carFactory()
 }
