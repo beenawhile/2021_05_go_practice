@@ -5,6 +5,7 @@ func main() {
 	// slicingTest()5
 	// linkedListTest()
 	// linkedListPractice()
+
 	// linkedListRefactoredTest()
 	// doubleLinkedListTest()
 	// stackQueueTest()
@@ -19,5 +20,11 @@ func main() {
 	// mutexMultiThreadProblem()
 	// deadLockMultiThreadProblem()
 	// channelTest()
-	carFactory()
+	// carFactory()
+	// channelSelectTest()
+	// selectCallTest()
+	// ppTest()
+	// oopTest()
+	// oopInterfaceTest()
+	interface2Test()
 }
