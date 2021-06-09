@@ -3,8 +3,13 @@ package myapp
 import (
 	"encoding/json"
 	"fmt"
+
+	"html/template" // 특수문자가 탈락되서 나옴
 	"net/http"
+	"os"
 	"strconv"
+
+	// "text/template" // 특수문자가 탈락되어 나오지 않음
 	"time"
 
 	"github.com/gorilla/mux"
@@ -38,6 +43,35 @@ var lastID int
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "hello, world")
 }
+
+// 이렇게 만든 method를 template에서 사용할 수 있음 => tmpl1.tmpl 참고
+func (u User) hasLongName() bool {
+	return len(u.FirstName) > 5
+}
+
+func templateHandler(w http.ResponseWriter, r *http.Request) {
+	user := User{ID: 3, FirstName: "Tuckerister", LastName: "Kim", Email: "tucker@naver.com"}
+	user2 := User{ID: 4, FirstName: "aaa", LastName: "Lee", Email: "aaa@naver.com"}
+	// 3.list로 넘겼을 때 => 파일에 range 부분 확인
+	users := []User{user, user2}
+	// 1.코드안에 template을 만들었을 때
+	// tmpl, err := template.New("Tmpl1").Parse("Name : {{.FirstName}} {{.LastName}}\nEmail : {{.Email}}\n")
+	tmpl, err := template.New("Tmpl1").ParseFiles("templates/tmpl1.tmpl", "templates/tmpl2.tmpl")
+	if err != nil {
+		panic(err)
+	}
+	// 1.코드안에 template을 만들었을 때
+	// tmpl.Execute(os.Stdout, user)
+	// tmpl.Execute(os.Stdout, user2)
+
+	// 2.template 파일로 받았을 때
+	// tmpl.ExecuteTemplate(os.Stdout, "tmpl1.tmpl", user)
+	// tmpl.ExecuteTemplate(os.Stdout, "tmpl2.tmpl", user2)
+
+	// 3.list로 넘겼을 때 => 파일에 range 부분 확인
+	tmpl.ExecuteTemplate(os.Stdout, "tmpl2.tmpl", users)
+}
+
 func userHandler(w http.ResponseWriter, r *http.Request) {
 	if len(userMap) == 0 {
 		w.WriteHeader(http.StatusOK)
@@ -181,6 +215,9 @@ func NewHandler() http.Handler {
 	mux.HandleFunc("/users", updateUserHandler).Methods("PUT")
 	mux.HandleFunc("/users/{id:[0-9]+}", getUserInfoHandler).Methods("GET")
 	mux.HandleFunc("/users/{id:[0-9]+}", deleteUserInfoHandler).Methods("DELETE")
+
+	// template
+	mux.HandleFunc("/template", templateHandler)
 
 	// 따로 지정하지 않으면 다른 uri 가 들어오더라도 테스트 통과하게 됨
 	// 예외 처리

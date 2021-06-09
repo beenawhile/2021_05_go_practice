@@ -150,7 +150,7 @@ func channelRangeTest() {
 // - select문 : 복수 채널들을 기다리면서 준비된 채널을 실행하는 기능을 제공
 // 	 - case channel들이 준비되지 않으면 계속 대기하게 되고, 가장 먼저 도착한 채널의 case를 실행
 // 	 - 만약 복수 채널에 신호가 오면, go runtime이 랜덤하게 그 중 한 개를 선택
-// 	 - 하지만 default문이 있으면, case문 채널이 준비되지 ㅇ낳더라도 계속 대기하지 않고 바로 default문 실행
+// 	 - 하지만 default문이 있으면, case문 채널이 준비되지 않더라도 계속 대기하지 않고 바로 default문 실행
 
 func channelSelectTest() {
 	done1 := make(chan bool)

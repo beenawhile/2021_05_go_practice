@@ -1,0 +1,10 @@
+Name : {{.FirstName}} {{.LastName}}
+
+Email : {{ .Email }}
+
+<a href="/user?email={{.Email}}">user</a>
+
+<script>
+var email = {{.Email}}
+var name = {{.FirstName}} {{.LastName}}
+</script>

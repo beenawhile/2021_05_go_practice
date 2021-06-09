@@ -132,34 +132,4 @@ func deadLockMultiThreadProblem() {
 		time.Sleep(100 * time.Millisecond)
 	}
 
-	// 결과
-	// Total : 20000
-	// Total : 20000
-	// Total : 8213
-	// Total : 18381
-	// Total : 11096
-	// Total : 19890
-	// Total : 21974
-	// Total : 32647
-	// Total : 22405
-	// Total : 31045
-	// Total : 70160
-	// Total : 175385
-	// Total : 78025
-	// 결과가 바뀌는 이유? multi-thread
-	// a.balance -= val 은 하나의 실행문이 아님
-	// => a.balance = a.balance - val
-	// 이 문장 역시 assembly language로 바꾸면 여러개의 문장이 될 수 있음
-	// 다음과 비슷한 코드가 될것임 (pseudo code)
-	// --------------------------
-	// Load RegA a.balance
-	// Load RegB val
-	// Del RegA RegB , &a.balance
-	// --------------------------
-	// 다른 cpu들에서 같은 연산을 하다보면 값이 꼬이게 됨
-
-	// 어떻게 문제를 해결하는가?
-	// 1. Lock : 가장 대표적인 방법 == Mutex
-	//  - thread 어떤 자원에 접근했을 때 잠시 잠궜다가 사용이 끝났을 때 풀어줌
-
 }

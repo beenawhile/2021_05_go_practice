@@ -29,11 +29,12 @@ package main
 //    - go lang에서는 상속을 지원하지 않기 때문에, base type을 바꿀 일이 없기 때문에 크게 신경 쓰지 않아도 됨
 
 //  4. Interface Segregation : 인터페이스 분리 원칙
-//    - 여러개의 관계를 모아놓은 interface 보다 관계 하나씩 정의하는 것이 더 좋다
 //    - 클라이언트가 자신이 이용하지 않는 메서드에 의존하지 않아야 한다는 원칙
+//    - 여러개의 관계를 모아놓은 interface 보다 관계 하나씩 정의하는 것이 더 좋다
 
 //  5. Dependency Inversion Principle : 의존성 역전 법칙
 //    - 관계는 인터페이스에 의존해야지 객체에 의존하면 안된다
+// ===================================
 
 // 1. Single Responsibility Principle Example
 // 2. Open Closed Principle 에도 적용됨
