@@ -2,55 +2,88 @@ package app
 
 import (
 	"net/http"
-	"time"
+	"strconv"
+	"todos/model"
 
 	"github.com/gorilla/mux"
 	"github.com/unrolled/render"
 )
 
-var rd *render.Render
+var rd *render.Render = render.New()
 
-type Todo struct {
-	ID        int       `json:"id"`
-	Name      string    `json:"name"`
-	Completed bool      `json:"completed"`
-	CreatedAt time.Time `json:"created_at"`
+type AppHandler struct {
+	// interface를 포함하고 있다 => 상속하고 다른 의미 (has 관계이지 is 관계가 아님)
+	http.Handler
+	db model.DBHandler
 }
 
-var todoMap map[int]*Todo
-
-func MakeHandler() http.Handler {
-
-	todoMap = make(map[int]*Todo)
-
-	addTestTodos()
-
-	rd = render.New()
+func MakeHandler() *AppHandler {
 
 	r := mux.NewRouter()
+	a := &AppHandler{
+		Handler: r,
+		db:      model.NewDBHandler(),
+	}
 
-	r.HandleFunc("/", indexHandler)
-	r.HandleFunc("/todos", getTodoListHandler).Methods("GET")
+	r.HandleFunc("/", a.indexHandler)
+	r.HandleFunc("/todos", a.getTodoListHandler).Methods("GET")
+	r.HandleFunc("/todos", a.addTodoHandler).Methods("POST")
+	r.HandleFunc("/todos/{id:[0-9]+}", a.removeTodoHandler).Methods("DELETE")
+	r.HandleFunc("/complete-todo/{id:[0-9]+}", a.completeTodoHandler).Methods("GET")
 
-	return r
+	return a
 }
 
-func indexHandler(w http.ResponseWriter, r *http.Request) {
+func (a *AppHandler) indexHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/todo.html", http.StatusTemporaryRedirect)
 }
 
-func getTodoListHandler(w http.ResponseWriter, r *http.Request) {
-	list := []*Todo{}
+func (a *AppHandler) getTodoListHandler(w http.ResponseWriter, r *http.Request) {
 
-	for _, v := range todoMap {
-		list = append(list, v)
-	}
+	list := a.db.GetTodos()
 	rd.JSON(w, http.StatusOK, list)
 }
 
-// 테스트용 데이터
-func addTestTodos() {
-	todoMap[1] = &Todo{ID: 1, Name: "Buy a milk", Completed: false, CreatedAt: time.Now()}
-	todoMap[2] = &Todo{ID: 2, Name: "Exercise", Completed: true, CreatedAt: time.Now()}
-	todoMap[3] = &Todo{ID: 3, Name: "Home work", Completed: false, CreatedAt: time.Now()}
+func (a *AppHandler) addTodoHandler(w http.ResponseWriter, r *http.Request) {
+	name := r.FormValue("name")
+
+	todo := a.db.AddTodo(name)
+
+	rd.JSON(w, http.StatusCreated, todo)
+}
+
+func (a *AppHandler) removeTodoHandler(w http.ResponseWriter, r *http.Request) {
+	// id 값 받아오기
+	vars := mux.Vars(r)
+	id, _ := strconv.Atoi(vars["id"])
+
+	ok := a.db.RemoveTodo(id)
+	if ok {
+		rd.JSON(w, http.StatusOK, Success{Success: true})
+	} else {
+		rd.JSON(w, http.StatusOK, Success{Success: false})
+	}
+}
+
+// 응답결과 받는 structure
+type Success struct {
+	Success bool `json:"success"`
+}
+
+func (a *AppHandler) completeTodoHandler(w http.ResponseWriter, r *http.Request) {
+	// id 값 받기
+	vars := mux.Vars(r)
+	id, _ := strconv.Atoi(vars["id"])
+	complete := r.FormValue("complete") == "true"
+
+	ok := a.db.CompleteTodo(id, complete)
+	if ok {
+		rd.JSON(w, http.StatusOK, Success{Success: true})
+	} else {
+		rd.JSON(w, http.StatusOK, Success{Success: false})
+	}
+}
+
+func (a *AppHandler) Close() {
+	a.db.Close()
 }

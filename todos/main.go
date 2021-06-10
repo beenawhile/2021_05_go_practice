@@ -11,6 +11,7 @@ import (
 func main() {
 
 	mux := app.MakeHandler()
+	defer mux.Close()
 
 	n := negroni.Classic()
 
