@@ -17,12 +17,12 @@ type AppHandler struct {
 	db model.DBHandler
 }
 
-func MakeHandler() *AppHandler {
+func MakeHandler(filepath string) *AppHandler {
 
 	r := mux.NewRouter()
 	a := &AppHandler{
 		Handler: r,
-		db:      model.NewDBHandler(),
+		db:      model.NewDBHandler(filepath),
 	}
 
 	r.HandleFunc("/", a.indexHandler)

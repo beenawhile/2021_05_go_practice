@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"os"
 	"strconv"
 	"testing"
 	"todos/model"
@@ -16,8 +17,13 @@ import (
 // refactoring 할 때 매우 유용하기 때문에 작성함
 
 func TestTodos(t *testing.T) {
+
+	os.Remove("./test.db")
+
 	assert := assert.New(t)
-	ts := httptest.NewServer(MakeHandler())
+	ah := MakeHandler("./test.db")
+	defer ah.Close()
+	ts := httptest.NewServer(ah)
 	defer ts.Close()
 
 	resp, err := http.PostForm(ts.URL+"/todos", url.Values{"name": {"Test todo"}})

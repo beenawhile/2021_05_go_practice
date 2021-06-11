@@ -1,6 +1,8 @@
 package model
 
-import "time"
+import (
+	"time"
+)
 
 type Todo struct {
 	ID        int       `json:"id"`
@@ -17,6 +19,6 @@ type DBHandler interface {
 	Close()
 }
 
-func NewDBHandler() DBHandler {
-	return newSqliteHandler()
+func NewDBHandler(filepath string) DBHandler {
+	return newSqliteHandler(filepath)
 }

@@ -9,65 +9,54 @@
       var item = $(this).prevAll('.todo-list-input').val();
 
       if (item) {
-
         $.post("/todos", { name: item }, addItem)
         todoListInput.val("");
       }
 
     });
 
+    $.get("/todos", function (items) {
+      items.forEach(element => {
+        addItem(element)
+      })
+    })
+
     var addItem = function (item) {
       if (item.completed) {
-        todoListItem.append("<li class='completed' id='" + item.id + "'><div class='form-check'><label class='form-check-label'><input class='checkbox' type='checkbox' checked='checked' />" + item.name + "<i class='input-helper'></i></label></div><i class='remove mdi mdi-close-circle-outline'></i></li>");
-
+        todoListItem.append("<li class='completed' id='" + item.id + "'><div class='form-check'><label class='form-check-label'><input class='checkbox' type='checkbox' />" + item.name + "<i class='input-helper'></i></label></div><i class='remove mdi mdi-close-circle-outline'></i></li>");
       } else {
         todoListItem.append("<li id='" + item.id + "'><div class='form-check'><label class='form-check-label'><input class='checkbox' type='checkbox' />" + item.name + "<i class='input-helper'></i></label></div><i class='remove mdi mdi-close-circle-outline'></i></li>");
       }
     }
 
-    $.get("/todos", function (items) {
-      items.forEach(element => {
-        addItem(element);
-      });
-    })
-
     todoListItem.on('change', '.checkbox', function () {
 
-      var id = $(this).closest("li").attr("id")
       var $self = $(this)
+      var id = $self.closest("li").attr("id")
 
       var complete = true
-      if ($self.attr("checked")) {
+
+      if ($self.attr('checked')) {
         complete = false
       }
 
-      $.get("complete-todo/" + id + "?complete=" + complete, function (data) {
+      $.get("/complete-todo/" + id + "?complete=" + complete, function (rst) {
         if (complete) {
-          $self.attr("checked", "checked")
+          $self.attr('checked', 'checked');
         } else {
           $self.removeAttr('checked');
         }
-
-        $(this).closest("li").toggleClass('completed');
       })
 
-
-      // if ($(this).attr('checked')) {
-      //   $(this).removeAttr('checked');
-      // } else {
-      //   $(this).attr('checked', 'checked');
-      // }
-
-      // $(this).closest("li").toggleClass('completed');
+      $(this).closest("li").toggleClass('completed');
 
     });
 
     todoListItem.on('click', '.remove', function () {
-      // $(this).parent().remove();
-      var id = $(this).closest("li").attr("id")
       var $self = $(this)
+      var id = $self.closest("li").attr("id")
       $.ajax({
-        url: "todos/" + id,
+        url: "/todos/" + id,
         type: "DELETE",
         success: function (data) {
           if (data.success) {
@@ -75,6 +64,7 @@
           }
         }
       })
+
     });
 
   });

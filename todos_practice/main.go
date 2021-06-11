@@ -8,11 +8,13 @@ import (
 )
 
 func main() {
-	mux := app.MakeHandler()
+
+	m := app.MakeHandler()
+	defer m.Close()
 
 	n := negroni.Classic()
 
-	n.UseHandler(mux)
+	n.UseHandler(m)
 
 	http.ListenAndServe(":3000", n)
 }
