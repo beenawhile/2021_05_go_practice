@@ -9,7 +9,7 @@ import (
 
 func main() {
 
-	m := app.MakeHandler()
+	m := app.MakeHandler("./test.db")
 	defer m.Close()
 
 	n := negroni.Classic()
@@ -17,4 +17,5 @@ func main() {
 	n.UseHandler(m)
 
 	http.ListenAndServe(":3000", n)
+
 }

@@ -23,7 +23,7 @@
 
     var addItem = function (item) {
       if (item.completed) {
-        todoListItem.append("<li class='completed' id='" + item.id + "'><div class='form-check'><label class='form-check-label'><input class='checkbox' type='checkbox' />" + item.name + "<i class='input-helper'></i></label></div><i class='remove mdi mdi-close-circle-outline'></i></li>");
+        todoListItem.append("<li class='completed' id='" + item.id + "'><div class='form-check'><label class='form-check-label'><input class='checkbox' type='checkbox' checked='checked' />" + item.name + "<i class='input-helper'></i></label></div><i class='remove mdi mdi-close-circle-outline'></i></li>");
       } else {
         todoListItem.append("<li id='" + item.id + "'><div class='form-check'><label class='form-check-label'><input class='checkbox' type='checkbox' />" + item.name + "<i class='input-helper'></i></label></div><i class='remove mdi mdi-close-circle-outline'></i></li>");
       }
@@ -31,20 +31,20 @@
 
     todoListItem.on('change', '.checkbox', function () {
 
-      var $self = $(this)
-      var id = $self.closest("li").attr("id")
-
-      var complete = true
-
+      var $self = $(this);
+      var id = $self.closest("li").attr("id");
+      var complete = true;
       if ($self.attr('checked')) {
         complete = false
       }
 
-      $.get("/complete-todo/" + id + "?complete=" + complete, function (rst) {
-        if (complete) {
-          $self.attr('checked', 'checked');
-        } else {
-          $self.removeAttr('checked');
+      $.get("/complete-todo/" + id + "?complete=" + complete, function (result) {
+        if (result.isSuccess) {
+          if ($self.attr('checked')) {
+            $self.removeAttr('checked');
+          } else {
+            $self.attr('checked', 'checked');
+          }
         }
       })
 
@@ -53,13 +53,14 @@
     });
 
     todoListItem.on('click', '.remove', function () {
-      var $self = $(this)
-      var id = $self.closest("li").attr("id")
+      var $self = $(this);
+      var id = $self.closest("li").attr("id");
+
       $.ajax({
         url: "/todos/" + id,
         type: "DELETE",
-        success: function (data) {
-          if (data.success) {
+        success: function (result) {
+          if (result.isSuccess) {
             $self.parent().remove();
           }
         }

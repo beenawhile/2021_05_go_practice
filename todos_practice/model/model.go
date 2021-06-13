@@ -6,24 +6,17 @@ type Todo struct {
 	ID        int       `json:"id"`
 	Name      string    `json:"name"`
 	Completed bool      `json:"completed"`
-	CreatedAt time.Time `json:"created_at"`
+	CreatedAt time.Time `json:"createdAt"`
 }
 
 type DBHandler interface {
 	GetTodos() []*Todo
-	AddTodo(name string) *Todo
-	RemoveTodo(id int) bool
-	CompleteTodo(id int, complete bool) bool
+	AddTodo(string) *Todo
+	CompleteTodo(int, bool) bool
+	RemoveTodo(int) bool
 	Close()
 }
 
-var handler DBHandler
-
-func init() {
-	// handler = newMemoryHandler()
-	handler = newSqliteHandler()
-}
-
-func NewDBHandler() DBHandler {
-	return newSqliteHandler()
+func NewDBHandler(filepath string) DBHandler {
+	return newSqliteHandler(filepath)
 }
