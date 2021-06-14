@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -17,6 +18,13 @@ import (
 
 // oauth install : go get golang.org/x/oauth2
 //								 go get cloud.google.com/go
+
+type GoogleUserId struct {
+	ID            string `json:"id"`
+	Email         string `json:"email"`
+	VerifiedEmail bool   `json:"verified_email"`
+	Picture       string `json:"picture"`
+}
 
 const oauthGoogleUrlAPI = "https://www.googleapis.com/oauth2/v2/userinfo?access_token="
 
@@ -58,16 +66,42 @@ func googleAuthCallback(w http.ResponseWriter, r *http.Request) {
 	// google이 request에 state값 받아옴
 	if r.FormValue("state") != oauthstate.Value {
 		// 잘못된 state이기 때문에 원래로 보내버림
-		log.Printf("Invalid google oauth state, cookie: %s state: %s", oauthstate.Value, r.FormValue("state"))
-		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		errMsg := fmt.Sprintf("Invalid google oauth state, cookie: %s state: %s", oauthstate.Value, r.FormValue("state"))
+		log.Println(errMsg)
+		http.Error(w, errMsg, http.StatusInternalServerError)
 	}
 
 	// request에 API KEY, Refresh Key를 알려줌 => 이를 받아서 user info 가져옴
 	data, err := getGoogleUserInfo(r.FormValue("code"))
 	if err != nil {
 		log.Println(err.Error())
-		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+
+	// id 정보를 session에 저장
+	var userInfo GoogleUserId
+	err = json.Unmarshal(data, &userInfo)
+	if err != nil {
+		log.Println(err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	// session cookie에 id 저장
+	session, err := store.Get(r, "session")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Set some session values.
+	session.Values["id"] = userInfo.ID
+	// Save it before we write to the response/return from the handler.
+	err = session.Save(r, w)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 
 	fmt.Fprint(w, string(data))
 }

@@ -9,8 +9,7 @@ import (
 
 func main() {
 
-	m := app.MakeHandler("./test.db")
-	defer m.Close()
+	m := app.MakeHandler()
 
 	n := negroni.Classic()
 

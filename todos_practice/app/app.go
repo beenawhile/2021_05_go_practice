@@ -9,24 +9,24 @@ import (
 	"github.com/unrolled/render"
 )
 
-type Success struct {
-	IsSuccess bool `json:"isSuccess"`
-}
-
 type AppHandler struct {
 	http.Handler
 	db model.DBHandler
 }
 
+type Success struct {
+	IsSuccess bool `json:"isSuccess"`
+}
+
 var rd *render.Render = render.New()
 
-func MakeHandler(filepath string) *AppHandler {
+func MakeHandler() AppHandler {
 
 	m := mux.NewRouter()
 
 	a := &AppHandler{
 		Handler: m,
-		db:      model.NewDBHandler(filepath),
+		db:      model.NewDBHandler(),
 	}
 
 	m.HandleFunc("/", a.indexHandler)
@@ -35,16 +35,18 @@ func MakeHandler(filepath string) *AppHandler {
 	m.HandleFunc("/todos/{id:[0-9]+}", a.removeTodoHandler).Methods("DELETE")
 	m.HandleFunc("/complete-todo/{id:[0-9]+}", a.completeTodoHandler).Methods("GET")
 
-	return a
+	return *a
+
 }
 
 func (a *AppHandler) indexHandler(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "./todo.html", http.StatusPermanentRedirect)
+	http.Redirect(w, r, "./todo.html", http.StatusTemporaryRedirect)
 }
 
 func (a *AppHandler) getTodoListHandler(w http.ResponseWriter, r *http.Request) {
 
 	list := a.db.GetTodos()
+
 	rd.JSON(w, http.StatusOK, list)
 }
 
@@ -60,26 +62,20 @@ func (a *AppHandler) removeTodoHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.Atoi(vars["id"])
 
-	ok := a.db.RemoveTodo(id)
+	isSuccess := a.db.RemoveTodo(id)
 
-	if ok {
-		rd.JSON(w, http.StatusOK, Success{IsSuccess: true})
-	} else {
-		rd.JSON(w, http.StatusOK, Success{IsSuccess: false})
-	}
-
+	rd.JSON(w, http.StatusOK, Success{IsSuccess: isSuccess})
 }
+
 func (a *AppHandler) completeTodoHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.Atoi(vars["id"])
+
 	complete := r.FormValue("complete") == "true"
-	ok := a.db.CompleteTodo(id, complete)
-	if ok {
-		rd.JSON(w, http.StatusOK, Success{IsSuccess: true})
-	} else {
-		rd.JSON(w, http.StatusOK, Success{IsSuccess: false})
-	}
-	//
+
+	isSuccess := a.db.CompleteTodo(id, complete)
+
+	rd.JSON(w, http.StatusOK, Success{IsSuccess: isSuccess})
 
 }
 

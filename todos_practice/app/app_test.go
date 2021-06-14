@@ -9,7 +9,7 @@ import (
 	"os"
 	"strconv"
 	"testing"
-	"todos_practice/model"
+	"todos/model"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -20,7 +20,7 @@ func TestTodos(t *testing.T) {
 
 	assert := assert.New(t)
 
-	ah := MakeHandler("./test.db")
+	ah := MakeHandler()
 	defer ah.Close()
 
 	ts := httptest.NewServer(ah)

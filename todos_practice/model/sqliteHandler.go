@@ -11,42 +11,13 @@ type sqliteHandler struct {
 	db *sql.DB
 }
 
-func newSqliteHandler(filepath string) DBHandler {
-	database, err := sql.Open("sqlite3", filepath)
-	if err != nil {
-		panic(err)
-	}
-
-	stmt, err := database.Prepare(`CREATE TABLE IF NOT EXISTS todos (
-		id					INTEGER PRIMARY KEY AUTOINCREMENT,
-		name				TEXT,
-		completed		BOOLEAN,
-		createdAt		DATETIME
-	)`)
-
-	if err != nil {
-		panic(err)
-	}
-	stmt.Exec()
-
-	s := &sqliteHandler{
-		db: database,
-	}
-	return s
-}
-
-func (s *sqliteHandler) Close() {
-	s.db.Close()
-}
-
 func (s *sqliteHandler) GetTodos() []*Todo {
+	todos := []*Todo{}
 	rows, err := s.db.Query(`SELECT id, name, completed, createdAt FROM todos`)
 	if err != nil {
 		panic(err)
 	}
 	defer rows.Close()
-
-	todos := []*Todo{}
 
 	for rows.Next() {
 		var todo Todo
@@ -59,17 +30,18 @@ func (s *sqliteHandler) GetTodos() []*Todo {
 
 func (s *sqliteHandler) AddTodo(name string) *Todo {
 
-	stmt, err := s.db.Prepare(`INSERT INTO todos (name, completed, createdAt) VALUES (?,?,datetime('now'))`)
+	stmt, err := s.db.Prepare(`INSERT INTO todos (name, completed, createdAt) VALUES (?,?,DATETIME('NOW'))`)
 	if err != nil {
 		panic(err)
 	}
-	rst, err := stmt.Exec(name, false)
 
+	rst, err := stmt.Exec(name, false)
 	if err != nil {
 		panic(err)
 	}
-	var todo Todo
+
 	id, _ := rst.LastInsertId()
+	var todo Todo
 	todo.ID = int(id)
 	todo.Name = name
 	todo.Completed = false
@@ -78,26 +50,30 @@ func (s *sqliteHandler) AddTodo(name string) *Todo {
 	return &todo
 }
 
-func (s *sqliteHandler) CompleteTodo(id int, complete bool) bool {
+func (s *sqliteHandler) CompleteTodo(id int, completed bool) bool {
 
 	stmt, err := s.db.Prepare(`UPDATE todos SET completed = ? WHERE id = ?`)
 	if err != nil {
 		panic(err)
 	}
-	rst, err := stmt.Exec(complete, id)
+
+	rst, err := stmt.Exec(id, completed)
 	if err != nil {
 		panic(err)
 	}
 
 	cnt, _ := rst.RowsAffected()
+
 	return cnt > 0
 }
 
 func (s *sqliteHandler) RemoveTodo(id int) bool {
+
 	stmt, err := s.db.Prepare(`DELETE FROM todos WHERE id = ?`)
 	if err != nil {
 		panic(err)
 	}
+
 	rst, err := stmt.Exec(id)
 	if err != nil {
 		panic(err)
@@ -106,4 +82,35 @@ func (s *sqliteHandler) RemoveTodo(id int) bool {
 	cnt, _ := rst.RowsAffected()
 
 	return cnt > 0
+}
+
+func (s *sqliteHandler) Close() {
+	s.db.Close()
+}
+
+func newSqliteHandler() DBHandler {
+	database, err := sql.Open("sqlite3", "./test.db")
+	if err != nil {
+		panic(err)
+	}
+
+	stmt, err := database.Prepare(`
+	CREATE TABLE IF NOT EXISTS todos (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		name TEXT,
+		completed BOOLEAN,
+		createdAt DATETIME
+	)
+	`)
+
+	if err != nil {
+		panic(err)
+	}
+
+	stmt.Exec()
+
+	return &sqliteHandler{
+		db: database,
+	}
+
 }

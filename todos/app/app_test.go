@@ -18,6 +18,12 @@ import (
 
 func TestTodos(t *testing.T) {
 
+	// signin 부분 추가
+	// social login은 일일이 해주기 어려우므로 mockup 추가
+	getSessionID = func(r *http.Request) string {
+		return "testSessionId"
+	}
+
 	os.Remove("./test.db")
 
 	assert := assert.New(t)
