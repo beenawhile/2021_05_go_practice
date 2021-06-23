@@ -1,0 +1,33 @@
+(Memory) Garbage Collector
+
+ - Stack memory, Heap memory
+  * stack
+    - 일반적인 변수는 스택에 할당됨
+    - ex) int a; int b;
+    - 정의하면 정의할수록 쌓여감
+    - 변수 범위(if, for 등)를 벗어나면 사라짐
+
+  * heap
+    - 얼마정도 쓰고 싶다고 정의하여 프로그래머가 일정 크기 메모리를 할당할 수 있음
+    - 할당 후 주소(pointer) 형태로 반환됨
+      - ex) [C] int* p = malloc(size);
+    - C 언어에서는 할당받은 heap memory는 무조건 지워줘야함 (아무도 안해주기 때문에)
+      - ex) free(p);
+    - bug 발생시 free가 제대로 되지 않아 memory leak이 발생 (garbage 쌓임)
+
+- 이러한 문제 해결하기 위해 garbage collector 탄생
+
+- Garbage Collector
+  - 돌아다니면서 쓸모없어지면 쓰레기라 판단하고 삭제
+  - 어떻게 쓸모없다 판단하는가?
+    1. reference count : 참조하고 있는 횟수 저장하고 있음
+     => reference count == 0 일 때 쓸모없다 판단함 
+    - [C] dangling : 사라진 메모리를 참조하고 있는 경우 발생하는 버그. 발생시 access violation 가 발생하여 프로그램 강제 종료됨.(reference count 가 없기 때문)
+     => Go Lang 에서는 reference count가 있어서 dangling이 발생하지 않음
+     ※ reference count가 0이 아닌데 사용하지 않는 경우가 있음(=외딴섬)
+      ex) a int := b b int := a
+     => garbage collector 가 찾아서 처리해줌
+  - 그래서 garbage collector는 하는 일이 많음 => 전수조사 하기 때문에 => 예전에는 garbage collector 속도가 느림(Java)
+  - 현재는 multi thread, GC 발전(소규모로 자주) 하기 때문에 느리지 않음
+
+- 이해가 안갈시 https://www.youtube.com/watch?v=SH32PgYGYRY 참고
