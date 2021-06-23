@@ -1,8 +1,8 @@
 package main
 
 import (
-	"microservice_2_http_rpc/client"
-	"microservice_2_http_rpc/server"
+	"microservice_1_http_rpc/client"
+	"microservice_1_http_rpc/server"
 	"testing"
 )
 

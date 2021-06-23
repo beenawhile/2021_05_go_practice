@@ -3,7 +3,7 @@ package client
 import (
 	"bytes"
 	"encoding/json"
-	"microservice_2_rpc/contract"
+	"microservice_1_rpc/contract"
 	"net/http"
 )
 

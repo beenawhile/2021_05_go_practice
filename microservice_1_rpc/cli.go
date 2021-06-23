@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"microservice_2_rpc/client"
-	"microservice_2_rpc/server"
+	"microservice_1_rpc/client"
+	"microservice_1_rpc/server"
 )
 
 // RPC

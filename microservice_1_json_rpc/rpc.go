@@ -1,6 +1,6 @@
 package main
 
-import "microservice_2_http_rpc/server"
+import "microservice_1_http_rpc/server"
 
 func main() {
 	server.StartServer()

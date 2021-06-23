@@ -3,7 +3,7 @@ package client
 import (
 	"fmt"
 	"log"
-	"microservice_2_rpc/contract"
+	"microservice_1_http_rpc/contract"
 	"net/rpc"
 )
 
