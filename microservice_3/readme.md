@@ -128,3 +128,18 @@ bin    dev    etc    home   lib    media  mnt    opt    proc   root   run    sbi
       - CMD ["인수1","인수2"] // ENTRYPOINT에 기본 매개 변수 추가
       - CMD 명령 인수1 인수2 // 쉘 형식
     - docker 파일에는 하나의 CMD 명령만 허용
+
+ - dockerfile 에서 명령어를 실행할 때마다 docker는 새 레이어를 만든다 => 명령을 변경하면 해당 레이어가 완전히 다시 만들어지고 잠재적으로 이후 의 모든 레이어가 새로 만들어져 빌드 속도가 크게 저하될 수 있음
+  => 명령어 grouping 해야함
+
+   - ex.   
+   RUN apt-get update  
+   RUN apt-get install -y wget
+   RUN apt-get install -y curl
+   RUN apt-get install -y nginx
+   =>   
+   RUN apt-get update && apt-get install -y wget curl nginx
+
+ - dockerfile 로 이미지 만들기
+   - $docker build -t testserver .
+      - -t : 태그 이름 달기
