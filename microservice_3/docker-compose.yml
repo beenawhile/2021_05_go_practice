@@ -1,0 +1,10 @@
+version: '2'
+# 서비스 : 스택을 시작하려는 컨테이너
+# 각 서비스는 compose 파일 내에서 고유한 이름을 가져야 하지만 docker engine에서 실행 중인 모든 컨테이너가 중복되지 않는 이름을 가져야하는것은 아님
+#  -> docker-compose up 명령에 -p <project name>을 전달하면 컨테이너 앞에 지정된 프로젝트 이름이 컨테이너 이름 앞에 덧붙여짐
+services: 
+  testserver:
+    image: testserver
+  curl:
+    image: appropriate/curl
+    entrypoint: sh -c "sleep 3 && curl -XPOST testserver:8080/helloworld -d '{\"name\":\"Nic\"}'"

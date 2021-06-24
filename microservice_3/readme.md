@@ -143,3 +143,36 @@ bin    dev    etc    home   lib    media  mnt    opt    proc   root   run    sbi
  - dockerfile 로 이미지 만들기
    - $docker build -t testserver .
       - -t : 태그 이름 달기
+ - docker build context
+   - docker bbuild 명령을 실행할 때 컨텍스트 경로를 마지막 인수로 설정
+   - 명령이 실행되면 실제로는 컨텍스트가 서버로 전송
+   - 원본 폴더가 크면 이로 인해 문제가 발생할 수 있으므로 컨테이너를 빌드할 때는 컨테이너 내부로 패키지화해야하는 파일이나 필요한 파일만 보내는 것이 좋은 방법임
+   - 이 문제를 줄일 수 있는 방법
+      1. 컨텍스트가 필요한 파일만 가지고 있는지 확인 => 항상 가능한 것 아님
+      2. .dockerignore 파일을 사용
+
+   - docker ignore 파일
+      - 엔진에 컨텍스트를 보내기 전에 .dockerignore 파일의 패턴과 일치하는 파일 및 디렉토리를 제외
+      - .gitignore와 유사함
+        - `# 주석` : 무시
+        - `*/temp*` : 루트의 모든 하위 디렉토리에서 temp로 시작하는 파일 및 디렉토리 제외
+        - `*/*/temp*` : 루트의 두 단계 아래 있는 하위 디렉토리에서 temp로 시작하는 파일이나 디렉토리는 제외
+        - `temp?` : 루트 디렉토리에서 이름이 temp 뒤에 오는 한 문자로 이루어진 파일 및 디렉토리는 제외
+
+ - 컨테이너에서 데몬 실행
+      - 많이 사용하지만 실제로 안티 패턴임
+        - 데몬 실행 프로그램들은 docker에서 애플리케이션을 정상적으로 중지시키기 위해 PID1로 시작하고 사용자 애플리케이션들은 다른 프로세스 ID로 시작되기 때문에 이렇게 Docker 컨테이너를 중지하면 사용자 애플리케이션은 종료 되지 않음
+        - 이로 인해 docker stop 명령이 실행될 때 컨테이너가 멈춰버릴 수 있음
+        - 충돌이 발생한 후에도 애플리케이션이 계속 실행되도록 하려면 이 책임을 docker 컨테이너를 시작하는 관리자에게 위임해야 함
+
+
+## 10. docker compose
+ - yaml 파일에 저장된 스택(애플리케이션 개발 언어, 프레임워크, 데이터베이스 등 기술 및 도구 일체) 정의를 통해 여러 컨테이너를 동시에 시작할 수 있음
+ - docker compose에서 자주 부딪치는 문제 : compose에게 애플리케이션을 언제 실행해야하는지 알려줄 수 있는 현실적인 방법이 없음
+    - depends-on 구성을 사용하더라도 compose에게 종속성 여부와 서비스의 시작 순서를 조절해야 한다는 사실을 알려줄 수 밖에 없음
+ - compose가 수행할 작업은 컨테이너가 시작됐는지 확인 하는것
+    - 컨테이너가 시작됐다는 것이 요청을 처리할 준비가 됬다는 것은 아님
+- docker-compose up
+- docker-compose rm -v
+- docker-compose -f ./docker-compose.yml up
+- docker-compose -p testproject up
